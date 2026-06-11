@@ -1,0 +1,66 @@
+{
+  "version": "1.0",
+  "modules": [
+    {
+      "pattern": "**/dosage_calculator*",
+      "domain": "Medication Safety",
+      "risk_weight": 4,
+      "description": "Dosage calculation logic — patient safety critical"
+    },
+    {
+      "pattern": "**/alarm_threshold*",
+      "domain": "Patient Monitoring",
+      "risk_weight": 4,
+      "description": "Alarm threshold configuration — safety interlock"
+    },
+    {
+      "pattern": "**/auth/**",
+      "domain": "Access Control",
+      "risk_weight": 3,
+      "description": "Authentication and authorisation flows"
+    },
+    {
+      "pattern": "**/patient_data/**",
+      "domain": "Patient Data",
+      "risk_weight": 4,
+      "description": "Patient data pipeline and storage"
+    },
+    {
+      "pattern": "**/vitals/**",
+      "domain": "Clinical Measurement",
+      "risk_weight": 3,
+      "description": "Vital signs processing and alerting"
+    },
+    {
+      "pattern": "**/api/**",
+      "domain": "Integration",
+      "risk_weight": 2,
+      "description": "External API endpoints"
+    },
+    {
+      "pattern": "**/config/**",
+      "domain": "Configuration",
+      "risk_weight": 2,
+      "description": "System configuration files"
+    },
+    {
+      "pattern": "**/ui/**",
+      "domain": "User Interface",
+      "risk_weight": 1,
+      "description": "Frontend UI components"
+    },
+    {
+      "pattern": "**/styles/**",
+      "domain": "Styling",
+      "risk_weight": 1,
+      "description": "CSS and styling files"
+    },
+    {
+      "pattern": "**/*.md",
+      "domain": "Documentation",
+      "risk_weight": 1,
+      "description": "Markdown documentation files"
+    }
+  ],
+  "default_risk_weight": 2
+}

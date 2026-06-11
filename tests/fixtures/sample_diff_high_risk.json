@@ -1,0 +1,16 @@
+{
+  "files": [
+    {
+      "filename": "vitals/dosage_calculator.py",
+      "additions": 42,
+      "deletions": 8,
+      "status": "modified"
+    },
+    {
+      "filename": "tests/test_dosage.py",
+      "additions": 30,
+      "deletions": 0,
+      "status": "added"
+    }
+  ]
+}

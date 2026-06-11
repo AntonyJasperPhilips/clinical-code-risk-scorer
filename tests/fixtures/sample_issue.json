@@ -1,0 +1,9 @@
+{
+  "number": 123,
+  "title": "Update max IV drip rate limits for adult patients",
+  "body": "We need to revise the maximum IV drip dosage thresholds. This affects patient safety and must follow IEC 62304 risk controls.",
+  "labels": [
+    {"name": "clinical"},
+    {"name": "enhancement"}
+  ]
+}

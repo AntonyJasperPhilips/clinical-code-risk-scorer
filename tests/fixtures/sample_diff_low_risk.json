@@ -1,0 +1,16 @@
+{
+  "files": [
+    {
+      "filename": "ui/components/Button.jsx",
+      "additions": 5,
+      "deletions": 2,
+      "status": "modified"
+    },
+    {
+      "filename": "styles/theme.css",
+      "additions": 3,
+      "deletions": 1,
+      "status": "modified"
+    }
+  ]
+}
