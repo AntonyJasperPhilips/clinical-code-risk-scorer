@@ -1,0 +1,18 @@
+/* Demo dashboard theme (risk weight 1) — matches **/styles/** */
+
+:root {
+  --primary: #0a7cff;
+  --danger: #e5484d;
+  --bg: #0d1117;
+  --text: #e6edf3;
+}
+
+.patient-row {
+  font-family: ui-monospace, monospace;
+  padding: 4px 8px;
+}
+
+.alarm {
+  color: var(--danger);
+  font-weight: 600;
+}
