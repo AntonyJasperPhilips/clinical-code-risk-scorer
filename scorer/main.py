@@ -8,6 +8,7 @@ from scorer.coverage_analyzer import compute_coverage_deltas, parse_coverage_xml
 from scorer.copilot_scorer import call_copilot_scorer
 from scorer.diff_analyzer import analyze_diff, load_clinical_modules
 from scorer.issues_fetcher import fetch_linked_issues
+from scorer.labeler import sync_risk_label
 from scorer.models import RiskReport, RiskSignal
 from scorer.report_formatter import format_report, post_or_update_comment
 from scorer.status_check import set_failure_status, set_status_check
@@ -76,6 +77,9 @@ def main():
 
         # 10. Set commit status check
         set_status_check(token, repo, head_sha, risk_score.level, pr_url)
+
+        # 11. Tag the PR with a clinical-risk label for HIGH/CRITICAL verdicts
+        sync_risk_label(token, repo, pr_number, risk_score.level)
 
         print(f"Risk assessment complete: {risk_score.level.value} (score {risk_score.score}/10)")
 
