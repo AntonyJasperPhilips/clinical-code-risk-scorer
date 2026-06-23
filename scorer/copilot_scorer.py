@@ -17,9 +17,47 @@ import requests
 from scorer.models import RiskLevel, RiskScore, RiskSignal
 
 COPILOT_ENDPOINT = os.environ.get(
-    "COPILOT_ENDPOINT", "https://models.github.ai/inference/chat/completions"
+    "COPILOT_ENDPOINT", "https://api.githubcopilot.com/chat/completions"
 )
-COPILOT_MODEL = os.environ.get("COPILOT_MODEL", "openai/gpt-4o")
+COPILOT_MODEL = os.environ.get("COPILOT_MODEL", "gpt-4o")
+
+# Used to exchange a GitHub OAuth token (tied to a Copilot seat) for a short-lived
+# Copilot API bearer token. Only used when targeting the IDE Copilot backend.
+COPILOT_TOKEN_EXCHANGE_URL = "https://api.github.com/copilot_internal/v2/token"
+
+# Editor identity headers expected by the Copilot backend.
+_EDITOR_VERSION = "vscode/1.90.0"
+_EDITOR_PLUGIN_VERSION = "copilot-chat/0.16.0"
+
+
+def _is_copilot_ide_endpoint() -> bool:
+    """True when we are talking to the IDE Copilot backend (needs token exchange)."""
+    return "api.githubcopilot.com" in COPILOT_ENDPOINT
+
+
+def _exchange_copilot_token(oauth_token: str) -> str:
+    """Exchange a GitHub OAuth token for a short-lived Copilot API bearer token.
+
+    The OAuth token must belong to an account with an active Copilot seat (obtained
+    once via the device-authorization flow). Raises on failure.
+    """
+    resp = requests.get(
+        COPILOT_TOKEN_EXCHANGE_URL,
+        headers={
+            "Authorization": f"token {oauth_token}",
+            "Accept": "application/json",
+            "Editor-Version": _EDITOR_VERSION,
+            "Editor-Plugin-Version": _EDITOR_PLUGIN_VERSION,
+            "User-Agent": "GithubCopilot/1.155.0",
+        },
+        timeout=30,
+    )
+    if resp.status_code >= 400:
+        print(
+            f"[copilot_scorer] token exchange failed ({resp.status_code}): {resp.text[:200]}"
+        )
+    resp.raise_for_status()
+    return resp.json()["token"]
 
 SYSTEM_PROMPT = """You are a clinical software risk classifier for a medical device company operating
 under IEC 62304. Your job is to classify the clinical risk of a pull request based
@@ -140,6 +178,33 @@ def call_copilot_scorer(
         print("[copilot_scorer] No Copilot token provided — using rule-based fallback.")
         return rule_based_fallback(signal, sme_config)
 
+    # The IDE Copilot backend rejects PATs/OAuth tokens directly — exchange for a
+    # short-lived Copilot bearer token and send the editor integration headers.
+    if _is_copilot_ide_endpoint():
+        try:
+            bearer = _exchange_copilot_token(copilot_token)
+        except (requests.RequestException, KeyError, ValueError) as exc:
+            print(
+                f"[copilot_scorer] could not obtain Copilot token ({exc}) — "
+                "using rule-based fallback."
+            )
+            return rule_based_fallback(signal, sme_config)
+        headers = {
+            "Authorization": f"Bearer {bearer}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Copilot-Integration-Id": "vscode-chat",
+            "Editor-Version": _EDITOR_VERSION,
+            "Editor-Plugin-Version": _EDITOR_PLUGIN_VERSION,
+        }
+    else:
+        # GitHub Models / internal gateway: send the token as-is.
+        headers = {
+            "Authorization": f"Bearer {copilot_token}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }
+
     payload = build_scoring_payload(signal)
     body = {
         "model": COPILOT_MODEL,
@@ -149,11 +214,6 @@ def call_copilot_scorer(
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": json.dumps(payload)},
         ],
-    }
-    headers = {
-        "Authorization": f"Bearer {copilot_token}",
-        "Content-Type": "application/json",
-        "Accept": "application/json",
     }
 
     last_error = None

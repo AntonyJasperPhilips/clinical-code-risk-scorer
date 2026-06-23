@@ -86,6 +86,7 @@ def test_call_copilot_success(monkeypatch, sme_config):
         def raise_for_status(self):
             pass
 
+    monkeypatch.setattr(copilot_scorer, "_exchange_copilot_token", lambda tok: "copilot-bearer")
     monkeypatch.setattr(copilot_scorer.requests, "post", lambda *a, **k: Resp())
 
     score = call_copilot_scorer("tok", make_signal(3), sme_config)
@@ -105,8 +106,68 @@ def test_call_copilot_invalid_json_falls_back(monkeypatch, sme_config):
         def raise_for_status(self):
             pass
 
+    monkeypatch.setattr(copilot_scorer, "_exchange_copilot_token", lambda tok: "copilot-bearer")
     monkeypatch.setattr(copilot_scorer.requests, "post", lambda *a, **k: Resp())
 
     score = call_copilot_scorer("tok", make_signal(4), sme_config)
     assert score.fallback_used is True
     assert score.level == RiskLevel.CRITICAL
+
+
+def test_token_exchange_failure_falls_back(monkeypatch, sme_config):
+    """If the Copilot token exchange fails, we fall back without calling the model."""
+    import requests as _requests
+
+    def boom(_tok):
+        raise _requests.RequestException("exchange down")
+
+    def fail_post(*a, **k):
+        raise AssertionError("model should not be called when exchange fails")
+
+    monkeypatch.setattr(copilot_scorer, "_exchange_copilot_token", boom)
+    monkeypatch.setattr(copilot_scorer.requests, "post", fail_post)
+
+    score = call_copilot_scorer("oauth-tok", make_signal(4), sme_config)
+    assert score.fallback_used is True
+    assert score.level == RiskLevel.CRITICAL
+
+
+def test_models_endpoint_skips_token_exchange(monkeypatch, sme_config):
+    """A non-Copilot endpoint (GitHub Models/gateway) uses the token as-is."""
+    api_json = {
+        "choices": [
+            {
+                "message": {
+                    "content": json.dumps(
+                        {
+                            "risk_level": "MEDIUM",
+                            "score": 4,
+                            "reasoning": "peripheral change",
+                            "contributing_factors": ["api module"],
+                            "recommended_gates": ["1 approval"],
+                        }
+                    )
+                }
+            }
+        ]
+    }
+
+    class Resp:
+        status_code = 200
+
+        def json(self):
+            return api_json
+
+        def raise_for_status(self):
+            pass
+
+    def no_exchange(_tok):
+        raise AssertionError("token exchange must not run for non-Copilot endpoints")
+
+    monkeypatch.setattr(copilot_scorer, "COPILOT_ENDPOINT", "https://models.github.ai/inference/chat/completions")
+    monkeypatch.setattr(copilot_scorer, "_exchange_copilot_token", no_exchange)
+    monkeypatch.setattr(copilot_scorer.requests, "post", lambda *a, **k: Resp())
+
+    score = call_copilot_scorer("pat", make_signal(2), sme_config)
+    assert score.fallback_used is False
+    assert score.level == RiskLevel.MEDIUM
