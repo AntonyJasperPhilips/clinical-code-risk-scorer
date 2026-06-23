@@ -1,0 +1,24 @@
+# CODEOWNERS — clinical ownership by risk domain
+#
+# Mirrors config/clinical_modules.json (path -> domain/risk) and
+# config/sme_registry.json (risk level -> reviewers/teams).
+# Last matching pattern wins, so patterns are ordered low -> high risk.
+#
+# NOTE: Owners must have write access and be repo collaborators/teams.
+# Enforcement requires branch protection: "Require review from Code Owners".
+
+# --- LOW (weight 1): docs / UI / styling — no mandatory clinical owner ---
+# (left unowned intentionally)
+
+# --- MEDIUM (weight 2): integration & configuration ---
+/demo_app/api/**           @philips-internal/backend-team @kumar-philips
+/config/**                 @philips-internal/backend-team @kumar-philips
+
+# --- HIGH (weight 3): access control & clinical measurement ---
+/demo_app/auth/**          @philips-internal/clinical-qa @vinod-hosamani @Sivaraj5
+/demo_app/vitals/**        @philips-internal/clinical-qa @vinod-hosamani @Sivaraj5
+
+# --- CRITICAL (weight 4): medication safety, alarms, patient data ---
+/demo_app/patient_data/**  @philips-internal/clinical-qa @philips-internal/patient-safety @yadavphilips
+dosage_calculator*         @philips-internal/clinical-qa @philips-internal/patient-safety @yadavphilips
+alarm_threshold*           @philips-internal/clinical-qa @philips-internal/patient-safety @yadavphilips
