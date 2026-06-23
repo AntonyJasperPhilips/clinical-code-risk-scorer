@@ -7,4 +7,4 @@ def format_patient_row(name: str, bpm: float, status: str) -> str:
 
 
 def primary_button_label(is_saving: bool) -> str:
-    return "Saving…" if is_saving else "Save"
+    return "Saving…" if is_saving else "Save changes"
