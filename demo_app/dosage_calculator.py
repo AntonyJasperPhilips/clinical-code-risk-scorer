@@ -11,6 +11,7 @@ MAX_ABSOLUTE_DOSE_MG = {
     "paracetamol": 1000.0,
     "morphine": 10.0,
     "heparin": 5000.0,
+    "ibuprofen": 800.0,
 }
 
 

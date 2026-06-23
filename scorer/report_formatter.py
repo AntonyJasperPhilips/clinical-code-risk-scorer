@@ -82,6 +82,12 @@ def format_report(report: RiskReport) -> str:
         else "Standard review — no specific assignment"
     )
 
+    teams = (
+        _bullets([f"@{report.repo.split('/')[0]}/{t}" for t in score.assigned_teams])
+        if score.assigned_teams
+        else "_None_"
+    )
+
     fallback_note = ""
     if score.fallback_used:
         fallback_note = "\n> ⚠ AI scorer unavailable — rule-based fallback used\n"
@@ -109,6 +115,11 @@ def format_report(report: RiskReport) -> str:
 
 ### Assigned Reviewers
 {reviewers}
+
+---
+
+### Assigned Teams
+{teams}
 
 ---
 
