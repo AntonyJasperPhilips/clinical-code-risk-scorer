@@ -11,14 +11,14 @@
 # (left unowned intentionally)
 
 # --- MEDIUM (weight 2): integration & configuration ---
-/demo_app/api/**           @philips-internal/backend-team @kumar-philips
-/config/**                 @philips-internal/backend-team @kumar-philips
+/demo_app/api/**           @philips-internal/backend-team @yadavphilips
+/config/**                 @philips-internal/backend-team @yadavphilips
 
 # --- HIGH (weight 3): access control & clinical measurement ---
 /demo_app/auth/**          @philips-internal/clinical-qa @vinod-hosamani @Sivaraj5
 /demo_app/vitals/**        @philips-internal/clinical-qa @vinod-hosamani @Sivaraj5
 
 # --- CRITICAL (weight 4): medication safety, alarms, patient data ---
-/demo_app/patient_data/**  @philips-internal/clinical-qa @philips-internal/patient-safety @yadavphilips
-dosage_calculator*         @philips-internal/clinical-qa @philips-internal/patient-safety @yadavphilips
-alarm_threshold*           @philips-internal/clinical-qa @philips-internal/patient-safety @yadavphilips
+/demo_app/patient_data/**  @philips-internal/clinical-qa @philips-internal/patient-safety @kumar-philips
+dosage_calculator*         @philips-internal/clinical-qa @philips-internal/patient-safety @kumar-philips
+alarm_threshold*           @philips-internal/clinical-qa @philips-internal/patient-safety @kumar-philips
