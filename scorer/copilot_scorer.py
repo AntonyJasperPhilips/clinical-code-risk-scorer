@@ -1,15 +1,25 @@
-"""Component 5 — AI risk scoring via the GitHub Copilot API, with a
-deterministic rule-based fallback."""
+"""Component 5 — AI risk scoring via the GitHub Models API, with a
+deterministic rule-based fallback.
+
+Uses the GitHub Models inference endpoint, which accepts a fine-grained PAT with
+the ``models:read`` permission. The endpoint and model can be overridden via the
+``COPILOT_ENDPOINT`` / ``COPILOT_MODEL`` env vars (e.g. to target an internal
+gateway). Note: the IDE Copilot backend (api.githubcopilot.com) rejects PATs, so
+it is not used here.
+"""
 
 import json
+import os
 from typing import List
 
 import requests
 
 from scorer.models import RiskLevel, RiskScore, RiskSignal
 
-COPILOT_ENDPOINT = "https://api.githubcopilot.com/chat/completions"
-COPILOT_MODEL = "gpt-4o"
+COPILOT_ENDPOINT = os.environ.get(
+    "COPILOT_ENDPOINT", "https://models.github.ai/inference/chat/completions"
+)
+COPILOT_MODEL = os.environ.get("COPILOT_MODEL", "openai/gpt-4o")
 
 SYSTEM_PROMPT = """You are a clinical software risk classifier for a medical device company operating
 under IEC 62304. Your job is to classify the clinical risk of a pull request based
@@ -143,10 +153,7 @@ def call_copilot_scorer(
     headers = {
         "Authorization": f"Bearer {copilot_token}",
         "Content-Type": "application/json",
-        # The Copilot backend rejects requests without an integration id (400).
-        "Copilot-Integration-Id": "vscode-chat",
-        "Editor-Version": "vscode/1.90.0",
-        "Editor-Plugin-Version": "copilot-chat/0.16.0",
+        "Accept": "application/json",
     }
 
     last_error = None

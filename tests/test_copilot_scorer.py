@@ -78,6 +78,8 @@ def test_call_copilot_success(monkeypatch, sme_config):
     }
 
     class Resp:
+        status_code = 200
+
         def json(self):
             return api_json
 
@@ -95,6 +97,8 @@ def test_call_copilot_success(monkeypatch, sme_config):
 
 def test_call_copilot_invalid_json_falls_back(monkeypatch, sme_config):
     class Resp:
+        status_code = 200
+
         def json(self):
             return {"choices": [{"message": {"content": "not json"}}]}
 
