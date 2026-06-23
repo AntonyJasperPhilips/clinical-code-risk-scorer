@@ -8,7 +8,7 @@
     },
     "MEDIUM": {
       "required_approvals": 1,
-      "reviewers": ["kumar-philips"],
+      "reviewers": ["yadavphilips"],
       "teams": ["backend-team"]
     },
     "HIGH": {
@@ -18,7 +18,7 @@
     },
     "CRITICAL": {
       "required_approvals": 3,
-      "reviewers": ["yadavphilips"],
+      "reviewers": ["kumar-philips"],
       "teams": ["clinical-qa", "patient-safety"]
     }
   }
