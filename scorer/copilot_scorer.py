@@ -143,12 +143,21 @@ def call_copilot_scorer(
     headers = {
         "Authorization": f"Bearer {copilot_token}",
         "Content-Type": "application/json",
+        # The Copilot backend rejects requests without an integration id (400).
+        "Copilot-Integration-Id": "vscode-chat",
+        "Editor-Version": "vscode/1.90.0",
+        "Editor-Plugin-Version": "copilot-chat/0.16.0",
     }
 
     last_error = None
     for attempt in range(2):
         try:
             resp = requests.post(COPILOT_ENDPOINT, headers=headers, json=body, timeout=60)
+            if resp.status_code >= 400:
+                # Surface the API error body — vital for diagnosing 400/403 from the gateway.
+                print(
+                    f"[copilot_scorer] HTTP {resp.status_code} from Copilot: {resp.text[:300]}"
+                )
             resp.raise_for_status()
             content = resp.json()["choices"][0]["message"]["content"]
             data = _validate_and_build(content, RiskLevel.MEDIUM)
