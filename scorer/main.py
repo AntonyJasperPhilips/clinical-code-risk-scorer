@@ -11,6 +11,7 @@ from scorer.issues_fetcher import fetch_linked_issues
 from scorer.labeler import sync_risk_label
 from scorer.models import RiskReport, RiskSignal
 from scorer.report_formatter import format_report, post_or_update_comment
+from scorer.reviewer_assigner import request_reviewers
 from scorer.status_check import set_failure_status, set_status_check
 
 
@@ -80,6 +81,9 @@ def main():
 
         # 11. Tag the PR with a clinical-risk label for HIGH/CRITICAL verdicts
         sync_risk_label(token, repo, pr_number, risk_score.level)
+
+        # 12. Request reviewers/teams proportionate to the risk level (best-effort)
+        request_reviewers(token, repo, pr_number, risk_score)
 
         print(f"Risk assessment complete: {risk_score.level.value} (score {risk_score.score}/10)")
 
