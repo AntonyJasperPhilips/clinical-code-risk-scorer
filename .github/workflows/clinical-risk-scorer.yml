@@ -41,4 +41,5 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           COVERAGE_THRESHOLD: "80"
+          COPILOT_MODEL: "openai/gpt-4o-mini"
         run: python -m scorer.main
